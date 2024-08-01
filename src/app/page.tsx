@@ -15,6 +15,10 @@ export default function Home() {
         <Link href="/i/flow/signup" className={styles.signup}>
           계정 만들기
         </Link>
+        <span>
+          가입하시려면 쿠키 사용을 포함해 이용약관과 개인정보 처리방침에
+          동의해야 합니다.
+        </span>
         <h3>이미 트위터에 가입하셨나요?</h3>
         <Link href="/login" className={styles.login}>
           로그인
