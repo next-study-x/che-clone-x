@@ -1,78 +1,102 @@
-import styles from "./signupModal.module.css";
-import Image from "next/image";
-import ZLogo from "../../../../public/zlogo.png";
-import GoogleLogo from "../../../../public/googleLogo.png";
-import AppleLogo from "../../../../public/appleLogo.png";
+"use client";
+
+import style from './signup.module.css';
+import {useRouter} from "next/navigation";
+import {ChangeEventHandler, FormEventHandler, useState} from "react";
 
 export default function SignupModal() {
-  return (
-    <div className={styles.modalBackground}>
-      <div className={styles.modal}>
-        <div className={styles.closeButton}>✕</div>
-        <div className={styles.modalContent}>
-          <Image
-            src={ZLogo}
-            alt="X Logo"
-            width={40}
-            height={40}
-            className={styles.logo}
-          />
-          <h1 className={styles.title}>계정을 생성하세요.</h1>
-          <div className={styles.inputWrapper}>
-            <input className={styles.input} placeholder="이름" />
-          </div>
-          <div className={styles.inputWrapper}>
-            <input className={styles.input} placeholder="휴대폰" />
-          </div>
+  const [id, setId] = useState('');
+  const [password, setPassword] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [image, setImage] = useState('');
+  const [imageFile, setImageFile] = useState<File>();
 
-          <div className={styles.inputWrapper}>
-            <a href="#" className={styles.useEmail}>
-              대신 이메일 사용하기
-            </a>
+  const router = useRouter();
+  const onClickClose = () => {
+    router.back();
+    // TODO: 뒤로가기가 /home이 아니면 /home으로 보내기
+  }
+
+  const onChangeId: ChangeEventHandler<HTMLInputElement> = (e) => { setId(e.target.value) };
+
+  const onChangePassword: ChangeEventHandler<HTMLInputElement> = (e) => { setPassword(e.target.value) };
+  const onChangeNickname: ChangeEventHandler<HTMLInputElement> = (e) => { setNickname(e.target.value) };
+  const onChangeImageFile: ChangeEventHandler<HTMLInputElement> = (e) => {
+    e.target.files && setImageFile(e.target.files[0])
+  };
+
+  const onSubmit: FormEventHandler = (e) => {
+    e.preventDefault();
+    fetch('http://localhost:9090/api/users', {
+      method: 'post',
+      body: JSON.stringify({
+        id,
+        nickname,
+        image,
+        password,
+      }),
+      credentials: 'include',
+    }).then((response: Response) => {
+      console.log(response.status);
+      if (response.status === 200) {
+        router.replace('/home');
+      }
+    }).catch((err) => {
+      console.error(err);
+    });
+  }
+
+  return (
+    <>
+      <div className={style.modalBackground}>
+        <div className={style.modal}>
+          <div className={style.modalHeader}>
+            <button className={style.closeButton} onClick={onClickClose}>
+              <svg width={24} viewBox="0 0 24 24" aria-hidden="true"
+                   className="r-18jsvk2 r-4qtqp9 r-yyyyoo r-z80fyv r-dnmrzs r-bnwqim r-1plcrui r-lrvibr r-19wmn03">
+                <g>
+                  <path
+                    d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path>
+                </g>
+              </svg>
+            </button>
+            <div>계정을 생성하세요.</div>
           </div>
-          <div className={styles.birthContainer}>
-            <h2 className={styles.birthTitle}>생년월일</h2>
-            <p className={styles.birthDescription}>
-              이 정보는 공개적으로 표시되지 않습니다. 비즈니스, 반려동물 등 계정
-              주제에 상관없이 나의 연령을 확인하세요.
-            </p>
-            <div className={styles.birthInputContainer}>
-              <div className={styles.birthInput}>
-                <select className={styles.birthSelect}>
-                  <option value="1">1</option>
-                  <option value="1">2</option>
-                  <option value="1">3</option>
-                  <option value="1">4</option>
-                  <option value="1">5</option>
-                  <option value="1">6</option>
-                  <option value="1">7</option>
-                </select>
+          <form>
+            <div className={style.modalBody}>
+              <div className={style.inputDiv}>
+                <label className={style.inputLabel} htmlFor="id">아이디</label>
+                <input id="id" className={style.input} type="text" placeholder=""
+                       value={id}
+                       onChange={onChangeId}
+                />
               </div>
-              <div className={styles.birthInput}>
-                <select className={styles.birthSelect}>
-                  <option value="1">1</option>
-                  <option value="1">2</option>
-                  <option value="1">3</option>
-                  <option value="1">4</option>
-                  <option value="1">5</option>
-                  <option value="1">6</option>
-                  <option value="1">7</option>
-                </select>
+              <div className={style.inputDiv}>
+                <label className={style.inputLabel} htmlFor="name">닉네임</label>
+                <input id="name" className={style.input} type="text" placeholder=""
+                       value={nickname}
+                       onChange={onChangeNickname}
+                />
               </div>
-              <div className={styles.birthInput}>
-                <select className={styles.birthSelect}>
-                  <option value="1">2024</option>
-                  <option value="1">2023</option>
-                  <option value="1">2022</option>
-                  <option value="1">2021</option>
-                </select>
+              <div className={style.inputDiv}>
+                <label className={style.inputLabel} htmlFor="password">비밀번호</label>
+                <input id="password" className={style.input} type="password" placeholder=""
+                       value={password}
+                       onChange={onChangePassword}
+                />
+              </div>
+              <div className={style.inputDiv}>
+                <label className={style.inputLabel} htmlFor="image">프로필</label>
+                <input id="image" className={style.input} type="file" accept="image/*"
+                       onChange={onChangeImageFile}
+                />
               </div>
             </div>
-          </div>
-
-          <button className={styles.nextButton}>다음</button>
+            <div className={style.modalFooter}>
+              <button className={style.actionButton} disabled>가입하기</button>
+            </div>
+          </form>
         </div>
       </div>
-    </div>
-  );
+    </>)
 }
